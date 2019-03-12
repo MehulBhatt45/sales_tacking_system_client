@@ -1,14 +1,54 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <title>Client</title>
-  <base href="/">
+	<meta charset="utf-8">
+	<title>Client</title>
+	<base href="/">
 
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="icon" type="image/x-icon" href="favicon.ico">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta name="theme-color" content="#9C27B0">
+	<link rel="icon" type="image/x-icon" href="favicon.ico">
+	<link rel='stylesheet' type='text/css' href='assets/bower_components/bootstrap/dist/css/bootstrap.min.css' />
+	<link rel='stylesheet' type='text/css' href='assets/bower_components/font-raoit/css/fonts.css' />
+	<link rel='stylesheet' type='text/css' href='assets/bower_components/spacing-raoit/css/spacing-raoit.css' />
+	<link rel='stylesheet' type='text/css' href='assets/bower_components/color-raoit/css/colors.css' />
+	<link rel="stylesheet" href="assets/bower_components/font-awesome/css/font-awesome.min.css">
+	<link rel="stylesheet" href="assets/bower_components/css/mdb.css" />
+	<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.0/css/all.css">
 </head>
-<body>
-  <app-root></app-root>
+<body class="deep-purple-skin" style="background-color: white;">
+	<script src="assets/bower_components/jquery/dist/jquery.min.js"></script>
+	<script type="text/javascript" src="assets/bower_components/js/popper.min.js"></script>
+	<script src="assets/bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
+	<script type="text/javascript" src="assets/bower_components/js/tether.min.js" ,></script>
+	<script type="text/javascript" src="assets/bower_components/js/mdb.min.js"></script>
+	<script type="text/javascript" src="assets/bower_components/MDBootstrap/js/mdb.min.js"></script>
+	<app-root></app-root>
+
+	<script type="text/javascript">
+		$(document).ready(function () {
+			$('.datepicker').pickadate();
+			$('.button-collapse').sideNav({
+				edge: 'left',
+				closeOnClick: true
+			});
+			var el = document.querySelector('.custom-scrollbar');
+			Ps.initialize(el);
+		})
+
+		$(".button-collapse").sideNav();
+		var sideNavScrollbar = document.querySelector('.custom-scrollbar');
+		Ps.initialize(sideNavScrollbar);
+
+		$('.button-collapse').sideNav({
+			edge: 'right',
+			closeOnClick: true,
+			breakpoint: 1200
+		});
+
+		$('.button-collapse').sideNav('show');
+		$('.button-collapse').sideNav('hide');
+		
+	</script>
 </body>
 </html>

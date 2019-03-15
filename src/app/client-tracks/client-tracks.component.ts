@@ -16,7 +16,8 @@ import { CommentService } from '../services/comment.service';
 	styleUrls: ['./client-tracks.component.css']
 })
 export class ClientTracksComponent implements OnInit {
-	tracks;
+	tracks = [];
+	titleCtrl = new FormControl('', Validators.required);
 	addClientForm: FormGroup;
 	files: Array<File> = [];
 	newClinet;
@@ -24,15 +25,34 @@ export class ClientTracksComponent implements OnInit {
 	projectTeam;
 	clients;
 	options = [];
+	modalTitle;
 	filteredOptions: Observable<string[]>;
 	constructor(public _clientService: ClientsService, public _commentService: CommentService) {
 		this.createAddClientForm();
 		this.getAllCommunication();
+		this._clientService.addTracksEvent.subscribe(track=>{
+			console.log(track);
+			this.tracks.push(track);
+			localStorage.setItem('tracks', JSON.stringify(this.tracks));
+		});
+		this._clientService.updateTracksEvent.subscribe(trackUpdated=>{
+			console.log(trackUpdated);
+			this.tracks[trackUpdated.index] = trackUpdated;
+			localStorage.setItem('tracks', JSON.stringify(this.tracks));
+		})
+		this._clientService.tracksIndex.subscribe(trackUpdated=>{
+			this.getAllTrack();
+		})
+		this._clientService.deleteTrackId.subscribe(trackUpdated=>{
+				this.getAllTrack();
+		})
+		this._clientService.addClientEvent.subscribe(trackUpdated=>{
+				this.getClients();
+		})
 	}
 
 	ngOnInit() {
-		this.getEmptyTracks();
-		this.getClients();
+		this.getAllTrack()
 		this.getAllUsers();
 		// this.filteredOptions = this.addClientForm.controls.communication_medium.valueChanges
 		// .pipe(startWith(''),map(value => this._filter(value)));
@@ -43,6 +63,29 @@ export class ClientTracksComponent implements OnInit {
 		const filterValue = value.toLowerCase();
 		return this.options.map(x => x.name).filter(option =>
       option.toLowerCase().includes(value.toLowerCase()));
+	}
+
+	getAllTrack(){
+		this._clientService.getAllTracks().subscribe((res:any)=>{
+			this.tracks = res;
+			localStorage.setItem('tracks', JSON.stringify(this.tracks));
+			$('.card-list').css({"width": "calc((100% / "+this.tracks.length+1+") - 12px)"});
+			this.getClients();
+		},err=>{
+			console.log(err);
+		})
+	}
+
+	addTrack(titleCtrl){
+		var data = { title: titleCtrl.replace(/\b\w/g, l => l.toUpperCase()) , trackId: titleCtrl.toLowerCase(), index: this.tracks.length };
+		this._clientService.addTrack(data).subscribe((res:any)=>{
+			console.log(res);
+			this.tracks.push(res);
+			// $('#card_list').css({"width": "calc((100% / "+(this.tracks.length+1)+") - 12px)"});
+			this.titleCtrl.setValue("");
+		},err=>{
+			console.log(err);
+		})
 	}
 
 	createAddClientForm(){
@@ -66,59 +109,8 @@ export class ClientTracksComponent implements OnInit {
 		})
 	}
 
-	getEmptyTracks(){
-		this.tracks = [{
-			"title": "Communication Initiated",
-			"id": "communication init",
-			"class":"primary",
-			"tasks": [
-
-			]
-		},
-		{
-			"title": "Call Scheduled",
-			"id": "call schedule",
-			"class":"info",
-			"tasks": [
-
-			]
-		},
-		{
-			"title": "Meeting Arranged",
-			"id": "meeting arranged",
-			"class":"warning",
-			"tasks": [
-
-			]
-		},
-		{
-			"title": "Lead Generated",
-			"id": "lead generated",
-			"class":"success",
-			"tasks": [
-
-			]
-		},
-		{
-			"title": "Future",
-			"id": "future",
-			"class":"unique",
-			"tasks": [
-
-			]
-		},
-		{
-			"title": "Nagative",
-			"id": "nagative",
-			"class":"danger",
-			"tasks": [
-
-			]
-		}];
-	}
-
 	get trackIds(): string[] {
-		return this.tracks.map(track => track.id);
+		return this.tracks.map(track => track.trackId);
 	}
 
 	getPriorityClass(priority){
@@ -187,8 +179,22 @@ export class ClientTracksComponent implements OnInit {
 	}
 
 	onTrackDrop(event: CdkDragDrop<any>) {
-		// console.log(event);
+		// console.log(event.container.data, event.previousIndex, event.currentIndex);
+		this.updateIndexOfTrack(event.container.data[event.previousIndex], event.previousIndex, event.currentIndex)
 		moveItemInArray(event.container.data, event.previousIndex, event.currentIndex);
+		this.tracks = event.container.data;
+	}
+
+	updateIndexOfTrack(data, pIndex, cIndex){
+		console.log(data, pIndex, cIndex);
+		var dataObj = {data: data, pIndex: pIndex, cIndex: cIndex};
+		this._clientService.updateTrackIndex(dataObj).subscribe(res=>{
+			console.log(res);
+			// this.getAllTrack();
+		},err=>{
+			console.log(err);
+			// this.getAllTrack();
+		})
 	}
 
 	getEmptyNewClient(){
@@ -203,14 +209,14 @@ export class ClientTracksComponent implements OnInit {
 	}
 
 	getClients(){
-		this.getEmptyTracks();
+		this.tracks = JSON.parse(localStorage.getItem('tracks'));
 		this._clientService.getAllClient().subscribe(res=>{
 			console.log(res);
 			this.clients = res;
 			_.forEach(this.clients , (client)=>{
-				// console.log("task ======>" , task);
 				_.forEach(this.tracks , (track)=>{
-					if(client.status == track.id){
+					// console.log("task  ======>" , client, track);
+					if(client.status == track.trackId){
 						track.tasks.push(client);
 					}
 				})
@@ -224,19 +230,31 @@ export class ClientTracksComponent implements OnInit {
 		this.files = event.target.files;
 	}
 
+	// updateTask(task){
+	// 	task.assignTo = this.editTaskForm.value.assignTo;
+	// 	console.log("update =====>",task);
+	// 	this._clientService.updateTask(task).subscribe((res:any)=>{
+	// 		$('#exampleModalPreviewLabel').modal('hide');
+	// 	},err=>{
+	// 		console.log(err);
+			
+	// 	})
+		
+	// }
+
 	saveTheClient(client){
 		let data = new FormData();
 		_.forOwn(client, function(value, key) {
 			data.append(key, value)
 		});
-		data.append('status', 'communication init');
+		data.append('status', 'communication initiated');
 		if(this.files.length>0){
 			for(var i=0;i<this.files.length;i++){
 				data.append('fileUpload', this.files[i]);	
 			}
 		}
 		this._clientService.addClient(data).subscribe((res:any)=>{
-			$('#exampleModalPreviewLabel').modal('hide');
+			$('#exampleModalPreview').modal('hide');
 			// this.getProject(this.projectId);
 		},err=>{
 			console.log(err);

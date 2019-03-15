@@ -20,7 +20,7 @@ export class ClientTracksComponent implements OnInit {
 	titleCtrl = new FormControl('', Validators.required);
 	addClientForm: FormGroup;
 	files: Array<File> = [];
-	newClinet;
+	newClinet = this.getEmptyNewClient();
 	currentUser = JSON.parse(localStorage.getItem('currentUser'));
 	projectTeam;
 	clients;
@@ -28,6 +28,7 @@ export class ClientTracksComponent implements OnInit {
 	modalTitle;
 	filteredOptions: Observable<string[]>;
 	base = config.baseMediaUrl;
+	searchText;
 	constructor(public _clientService: ClientsService, public _commentService: CommentService) {
 		this.createAddClientForm();
 		this.getAllCommunication();
@@ -55,16 +56,15 @@ export class ClientTracksComponent implements OnInit {
 	ngOnInit() {
 		this.getAllTrack()
 		this.getAllUsers();
-		// this.filteredOptions = this.addClientForm.controls.communication_medium.valueChanges
-		// .pipe(startWith(''),map(value => this._filter(value)));
-		// this.filteredOptions.subscribe(res=>{console.log(res);});
 	}
-	private _filter(value: string) {
-		console.log(value);
-		const filterValue = value.toLowerCase();
-		return this.options.map(x => x.name).filter(option =>
-      option.toLowerCase().includes(value.toLowerCase()));
-	}
+
+	
+	// private _filter(value: string) {
+	// 	console.log(value);
+	// 	const filterValue = value.toLowerCase();
+	// 	return this.options.map(x => x.name).filter(option =>
+ //      option.toLowerCase().includes(value.toLowerCase()));
+	// }
 
 	getAllTrack(){
 		this._clientService.getAllTracks().subscribe((res:any)=>{
@@ -97,7 +97,7 @@ export class ClientTracksComponent implements OnInit {
 			coordinator : new FormControl('', Validators.required),
 			priority : new FormControl('', Validators.required),
 			communication_medium : new FormControl('',Validators.required),
-			status : new FormControl({value: '', disabled: true}, Validators.required)
+			status : new FormControl('', Validators.required)
 		})
 	}
 
@@ -105,6 +105,9 @@ export class ClientTracksComponent implements OnInit {
 		this._clientService.getAllCommunication().subscribe((res:any)=>{
 			this.options = res;
 			console.log(this.options);
+			// this.filteredOptions = this.addClientForm.controls.communication_medium.valueChanges
+			// .pipe(startWith(''),map(value => this._filter(value)));
+			// this.filteredOptions.subscribe(res=>{console.log(res);});
 		},err=>{
 			console.log(err);
 		})
@@ -170,6 +173,7 @@ export class ClientTracksComponent implements OnInit {
 
 	updateStatus(newStatus, data){
 		data.status = newStatus;
+		data.operatorId = this.currentUser._id;
 		console.log("UniqueId", data.uniqueId);
 		this._clientService.updateClientStatus(data).subscribe((res:any)=>{
 			console.log(res);
@@ -199,7 +203,7 @@ export class ClientTracksComponent implements OnInit {
 	}
 
 	getEmptyNewClient(){
-		this.newClinet = { name:'', email:'', contact_number: '', coordinator: '', status: 'communication init', priority: '3' };
+		return { name:'', email:'', contact_number: '', coordinator: '', status: 'communication initiated', priority: '3' };
 	}
 
 	openModel(task){
@@ -209,11 +213,18 @@ export class ClientTracksComponent implements OnInit {
 		$('#fullHeightModalRight').modal('show');
 	}
 
+	openAddModel(){
+		this.newClinet = this.getEmptyNewClient();
+		this.modalTitle = 'Add Client'
+		$('#exampleModalPreview').modal('show');
+	}
+	allClients;
 	getClients(){
 		this.tracks = JSON.parse(localStorage.getItem('tracks'));
 		this._clientService.getAllClient().subscribe(res=>{
 			console.log(res);
 			this.clients = res;
+			this.allClients = res;
 			_.forEach(this.clients , (client)=>{
 				_.forEach(this.tracks , (track)=>{
 					// console.log("task  ======>" , client, track);
@@ -320,6 +331,29 @@ export class ClientTracksComponent implements OnInit {
 			this.projectTeam = res;
 		},err=>{
 			console.log(err);
+		})
+	}
+
+	onKey(searchText){
+		// console.log(searchText);
+		searchText = searchText.toLowerCase();
+		this.clients = this.allClients.filter( it => {
+			// console.log(it);
+			if(it.name.toLowerCase().includes(searchText) 
+				|| it.email.toLowerCase().includes(searchText) 
+				|| it.coordinator.name.toLowerCase().includes(searchText)
+				|| it.status.toLowerCase().includes(searchText)){
+				return it;
+			}
+		});
+		// console.log(this.clients);
+		this.tracks = JSON.parse(localStorage.getItem('tracks'))
+		_.forEach(this.clients , (client)=>{
+			_.forEach(this.tracks , (track)=>{
+				if(client.status == track.trackId){
+					track.tasks.push(client);
+				}
+			})
 		})
 	}
 

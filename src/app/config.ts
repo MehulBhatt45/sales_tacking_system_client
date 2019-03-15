@@ -1,10 +1,10 @@
 // const baseUrl = "http://132.140.160.183:4000/";
-// const baseUrl = "http://206.189.231.135:3000/sales";
-const baseUrl = "http://132.140.160.60:3000/sales";
+const baseUrl = "http://206.189.231.135:3000/sales";
+// const baseUrl = "http://132.140.160.60:3000/sales";
 // const baseUrl = "http://localhost:4000/";
 
-const baseMediaUrl = "http://132.140.160.60/sales_tacking_system/server/uploads/";
-// const baseMediaUrl = "http://206.189.231.135/sales_tracking_system_server/uploads/";
+// const baseMediaUrl = "http://132.140.160.60/sales_tacking_system/server/uploads/";
+const baseMediaUrl = "http://206.189.231.135/sales-tracking-system-server/uploads/";
 export const config = {
     baseApiUrl: baseUrl,
     baseMediaUrl: baseMediaUrl,

@@ -9,7 +9,7 @@ import * as _ from 'lodash';
 import * as DecoupledEditor from '@ckeditor/ckeditor5-build-classic';
 import { ChangeEvent } from '@ckeditor/ckeditor5-angular/ckeditor.component';
 import { CommentService } from '../services/comment.service';
-
+import { config } from '../config';
 @Component({
 	selector: 'app-client-tracks',
 	templateUrl: './client-tracks.component.html',
@@ -27,6 +27,7 @@ export class ClientTracksComponent implements OnInit {
 	options = [];
 	modalTitle;
 	filteredOptions: Observable<string[]>;
+	base = config.baseMediaUrl;
 	constructor(public _clientService: ClientsService, public _commentService: CommentService) {
 		this.createAddClientForm();
 		this.getAllCommunication();
@@ -261,7 +262,7 @@ export class ClientTracksComponent implements OnInit {
 		})
 	}
 	comment;
-	comments
+	comments = [];
 	public model = {
 		editorData: 'Enter comments here'
 	};
@@ -277,7 +278,7 @@ export class ClientTracksComponent implements OnInit {
 
 	public onChange( { editor }: ChangeEvent ) {
 		const data = editor.getData();
-		this.comment = data.replace(/<\/?[^>]+(>|$)/g, "")
+		this.comment = data;//.replace(/<\/?[^>]+(>|$)/g, "")
 	}
 
 	sendComment(taskId){
@@ -291,7 +292,7 @@ export class ClientTracksComponent implements OnInit {
 			for(var i = 0; i < this.files.length; i++)
 				data.append("fileUpload",this.files[i]);
 		}else{
-			data = {content:this.comment, userId: this.currentUser._id, taskId: taskId};
+			data = {content:this.comment, userId: this.currentUser._id, clientId: taskId};
 		}
 		console.log(data);
 		this._commentService.addComment(data).subscribe((res:any)=>{
@@ -306,7 +307,7 @@ export class ClientTracksComponent implements OnInit {
 	}
 
 	getAllCommentOfClinet(taskId){
-		this._commentService.getAllComments(taskId).subscribe(res=>{
+		this._commentService.getAllComments(taskId).subscribe((res:any)=>{
 			this.comments = res;
 			console.log(this.comments);
 		}, err=>{

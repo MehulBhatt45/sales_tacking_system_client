@@ -26,11 +26,6 @@
 														{{getInitialsOfName(task.coordinator.name)}}
 													</a>
 												</li>
-												<li *ngIf="!task.coordinator" class="add-member">
-													<a href="javascript:void(0);" title="Add Member">
-														<i class="fa fa-user-plus"></i>
-													</a>
-												</li>
 											</ul>
 										</td>
 										<td>
@@ -164,17 +159,17 @@
 											<p class="developerName" *ngIf="i.userId">
 												{{i.userId.name}}
 											</p>
-											<p>
-												{{i.content}}
-											</p>
-											<img [src]="" width="200" height="100" onerror="this.src='assets/icons/issues.png'">
+											<span innerHtml="{{i.content}}"></span>
+											<span *ngIf="i.images && i.images.length>0">
+												<img *ngFor="let image of i.images" src="{{base}}{{image}}" width="200" height="100" onerror="this.src='assets/icons/issues.png'">
+											</span>
 										</div>
 									</div>
 								</div>
 							</div>
 						</div>
 					</div>
-					<div *ngIf="newClinet.comment && newClinet.comment.length<=0">
+					<div *ngIf="comments.length<=0">
 						<p>No comments on this be the first one to comments on...</p>
 					</div>
 					<div class="padding-20">

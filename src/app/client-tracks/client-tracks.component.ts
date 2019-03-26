@@ -259,7 +259,7 @@ export class ClientTracksComponent implements OnInit {
 		_.forOwn(client, function(value, key) {
 			data.append(key, value)
 		});
-		data.append('status', 'communication initiated');
+		// data.append('status', 'communication initiated');
 		if(this.files.length>0){
 			for(var i=0;i<this.files.length;i++){
 				data.append('fileUpload', this.files[i]);	

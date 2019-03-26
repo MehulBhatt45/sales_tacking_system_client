@@ -203,7 +203,7 @@ export class ClientTracksComponent implements OnInit {
 	}
 
 	getEmptyNewClient(){
-		return { name:'', email:'', contact_number: '', coordinator: '', status: 'communication initiated', priority: '3' };
+		return { name:'', email:'', contact_number: '', coordinator: '', status: 'communication initiated', priority: '3', communication_medium: "" };
 	}
 
 	openModel(task){
